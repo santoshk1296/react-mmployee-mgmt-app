@@ -1,88 +1,142 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import EmployeeService from '../services/EmployeeService';
-import { Link } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
 
-class ListEmployeeComponent extends Component {
 
-    constructor(props){
-        
-        super(props)
+const columns = [
+    { id: 'empid', label: 'Emp Id', minWidth: 170 },
+    { id: 'firstname', label: 'First Name', minWidth: 100 },
+    { id: 'lastname', label: 'Last Name', minWidth: 100 },
+    { id: 'emailid', label: 'Email Id', minWidth: 100 },
+    { id: 'action', label: 'Actions', minWidth: 100 }
+];
 
-        this.state = {
-            employees: []
-        }
-    }
 
-    componentDidMount(){
+const ListEmployeeComponent = () => {
+
+
+    const [page, setPage] = React.useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [employees, setEmployees] = React.useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchData()
+    }, [])
+
+    const fetchData = () => {
 
         EmployeeService.getEmployList().then((res) => {
-            this.setState({employees: res.data});
+            setEmployees(res.data);
         });
     }
 
-    dleteEmployee(id){
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(+event.target.value);
+        setPage(0);
+    };
+
+    const dleteEmployee = (id, e) => {
+
+        e.preventDefault();
+
+        console.log('Inside dleteEmployee =>' + id);
 
         EmployeeService.deleteEmployee(id).then(res => {
-            
-            if(res?.status===200) {
-                
-                this.setState({employees: this.state.employees.filter(employee => employee.id !== id)});    
+
+            console.log('res.status =>' + res?.status);
+
+            if (res?.status === 200) {
 
                 console.log('employee Deleted');
-                window.location = "/employees";
-            }    
-        })
-        .catch(error => {
-            if (error.response) {
-                console.log('Error=>'+error.response.data.details);
-                alert(error.response.data.details);
+                const newemployeelist =  employees.filter((empl) =>{
+                    return empl.id !== id;
+                });
+                
+                setEmployees(newemployeelist);
+                navigate('/employees');
             }
-        });
+        })
+            .catch(error => {
+                if (error.response) {
+                    console.log('Error=>' + error.response.data.details);
+                    alert(error.response.data.details);
+                }
+            });
     }
-    
-    render() {
-        return (
-            <div>
-                <h2 className='text-center'>Employee List</h2>
-                    <Link className='btn btn-outline-warning' to="/add-employee">Add Employee</Link>
-                <div className='empTbl'>
-                    <table className="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Emp Id</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Email Id</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
 
-                            {
-                                this.state.employees.map(
-                                    employee =>
-                                        <tr key={employee.id}>
-                                            <td>{employee.id}</td>
-                                            <td>{employee.firstName}</td>
-                                            <td>{employee.lastName}</td>
-                                            <td>{employee.emailId}</td>
-                                            <td>
-                                                <Link style={{marginRight: "-200px"}} className='btn btn-info' to={{
-                                                                                    pathname:`/update-employee/${employee.id}`
-                                                                                    }}>Update</Link>
-                                            </td>
-                                            <td>
-                                                <button style={{marginLeft: "-90px"}} className='btn btn-danger' onClick={ () => this.dleteEmployee(employee.id)} >Delete</button>
-                                            </td>
-                                        </tr>
-                                )
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
+    const updateEmployee = (id, e) => {
+        e.preventDefault();
+        navigate('/update-employee/'+id);
     }
+
+    return (
+        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+            <TableContainer sx={{ maxHeight: 440 }}>
+                <Table stickyHeader aria-label="Employee List">
+                    <TableHead>
+                        <TableRow>
+                            {columns.map((column) => (
+                                <TableCell
+                                    key={column.id}
+                                    align={column.align}
+                                    style={{ minWidth: column.minWidth, fontSize:15, color:'Highlight', fontWeight:'bold'}}
+                                >
+                                    {column.label}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {employees
+                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            .map(employee =>
+                                <TableRow hover role="checkbox" tabIndex={-1} key={employee.id}>
+
+                                    <TableCell>{employee.id}</TableCell>
+                                    <TableCell>{employee.firstName}</TableCell>
+                                    <TableCell>{employee.lastName}</TableCell>
+                                    <TableCell>{employee.emailId}</TableCell>
+                                    <TableCell>
+                                        <IconButton aria-label="edit" color="primary" onClick={(e)=>(updateEmployee(employee.id, e))}>
+                                            < EditIcon/>
+                                        </IconButton>
+                                        <IconButton aria-label="delete" color="warning" onClick={(e)=>(dleteEmployee(employee.id, e))}>
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        }
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 15]}
+                component="div"
+                count={employees.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+        </Paper>
+    );
 }
 
 export default ListEmployeeComponent;
