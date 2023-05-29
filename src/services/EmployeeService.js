@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const EMP_BASE_URL = "http://localhost:8080/emp-api/v1/employees";
+//const EMP_BASE_URL = "http://localhost:8080/emp-api/v1/employees";
+const EMP_BASE_URL = "http://192.168.0.159:31110/emp-api/v1/employees"; //Kubernetes cluster url on Macbook CentOs VMware
 
 class EmployeeService {
   

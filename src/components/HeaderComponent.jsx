@@ -1,39 +1,48 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Link } from "react-router-dom";
+import MainNavigation from './MainNavigation.module.css';
+//import Container from 'react-bootstrap/Container';
+//import Nav from 'react-bootstrap/Nav';
+//import Navbar from 'react-bootstrap/Navbar';
 
-class HeaderComponent extends Component {
-    
-    constructor(props) {
-        super(props);
+ //Old with Link
+function HeaderComponent() {
 
-        this.state = {
+    return (
+        <div>
+            <header className={MainNavigation.header}>
+                <div className={MainNavigation.logo}>Employee Management</div>
+                <nav>
+                    <ul>
+                        <li>
+                            <Link to="/">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/employees">Employee List</Link>
+                        </li>
+                    </ul>
 
-        }
-    }
-
-    render() {
-        return (
-            <div>
-                <header>
-                    <nav className="navbar navbar-expand-sm navbar-dark bg-primary">
-                        <div className="collapse navbar-collapse" id="collapsibleNavId">
-                            <ul className="navbar-nav mr-auto mt-2 mt-lg-0">
-                            <li className="nav-item">
-                                    <Link className='btn btn-primary' to="/Home"><div className='nav-link'>Home</div></Link>
-                                </li>
-                                <li className="nav-item">
-                                    <Link className='btn btn-primary' to="/employees"><div className='nav-link'>Employee List</div></Link>
-                                </li>
-                                <li className="nav-item">
-                                <Link className='btn btn-primary' to="/add-employee"><div className='nav-link'>Add Employee</div></Link>
-                                </li>
-                            </ul>
-                        </div>
-                    </nav>
-                </header>
-            </div>
-        );
-    }
+                </nav>
+            </header>
+        </div>
+    );
 }
+    
+   /*
+   function HeaderComponent() {
+
+    
+    return (
+            <Navbar bg="primary" variant="dark">
+            <Container>
+              <Nav className="me-auto">
+                <Nav.Link to="/">Home</Nav.Link>
+                <Nav.Link to="/employees">Employee List</Nav.Link>
+              </Nav>
+            </Container>
+          </Navbar>
+        );
+}
+*/
 
 export default HeaderComponent;

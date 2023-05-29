@@ -1,95 +1,137 @@
-import React, { Component } from 'react';
-import { Link } from "react-router-dom";
+//import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import EmployeeService from '../services/EmployeeService';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
 
-class CreateEmployeeComponent extends Component {
+const CreateEmployeeComponent = (props) => {
+
+  //This code to grab the input from user with useState hook
+  /*
+  const [firstName, setFistName] = useState("");
+  const [lastName, setlastname] = useState("");
+  const [emailId, setEmailId] = useState("");
+  
+  console.log('Inside CreateEmployeeComponent');
+  
+   const saveEmployee = (event) => {
+          event.preventDefault();
+  
+          let employee = { firstName: firstName, lastName: lastName, emailId: emailId};
+  
+          console.log('employee => ' + JSON.stringify(employee));
+  
+          EmployeeService.createEmployee(employee).then(res => {
+              
+              if(res?.status===200) {
+                  console.log('employee created');
+                  console.log('Response Generated: '+JSON.stringify(res.data));
+                  //window.location = "/employees";
+                  props.onBindDataAddEmp(res.data);
+              }    
+          })
+          .catch(error => {
+              if (error.response) {
+                  console.log('Error=>'+error.response.data.details);
+                  alert(error.response.data.details);
+              }
+          });
+  
+  }
+  
+  const changeFirstNameHandler = (event) => {
+
+      setFistName(event.target.value);
+  }
+
+  const changeLastNameHandler = (event) => {
+
+      setlastname(event.target.value);
+  }
+  
+  const changeEmailIdHandler = (event) => {
+      setEmailId(event.target.value);
+  }
+  */
+
+  const firstNameRef = useRef();
+  const lastNameRef = useRef();
+  const emailIdRef = useRef();
+
+  const saveEmployee = (event) => {
     
-    constructor(props) {
-        super(props);
-        
-        this.state = {
-            firstName: '',
-            lastName: '',
-            emailId: ''
+    event.preventDefault();
 
+    const firstName = firstNameRef.current.value;
+    const lastName = lastNameRef.current.value;
+    const emailId = emailIdRef.current.value;
+
+    const employee = { firstName: firstName, lastName: lastName, emailId: emailId };
+
+    console.log('employee => ' + JSON.stringify(employee));
+
+    EmployeeService.createEmployee(employee).then(res => {
+
+      if (res?.status === 200) {
+        console.log('employee created');
+        console.log('Response Generated: ' + JSON.stringify(res.data));
+        //window.location = "/employees";
+        props.onBindDataAddEmp(res.data);
+      }
+    })
+      .catch(error => {
+        if (error.response) {
+          console.log('Error=>' + error.response.data.details);
+          alert(error.response.data.details);
         }
+      });
 
-        this.changeFirstNameHandler=this.changeFirstNameHandler.bind(this);
-        this.changeLastNameHandler=this.changeLastNameHandler.bind(this);
-        this.changeEmailIdHandler=this.changeEmailIdHandler.bind(this);
-        this.saveEmployee=this.saveEmployee.bind(this);
+  }
 
-    }
-    
-    saveEmployee = (event) => {
-        event.preventDefault();
+  const handleClose = () => {
 
-        let employee = { firstName: this.state.firstName, lastName: this.state.lastName, emailId: this.state.emailId};
+    props.onCloseModal();
 
-        console.log('employee => ' + JSON.stringify(employee));
+  }
 
-        EmployeeService.createEmployee(employee).then(res => {
-            
-            if(res?.status===200) {
-                console.log('employee created');
-                window.location = "/employees";
-            }    
-        })
-        .catch(error => {
-            if (error.response) {
-                console.log('Error=>'+error.response.data.details);
-                alert(error.response.data.details);
-            }
-        });
+  return (
 
-    }
-
-    changeFirstNameHandler = (event) => {
-
-        this.setState({firstName: event.target.value});
-    }
-
-    changeLastNameHandler = (event) => {
-
-        this.setState({lastName: event.target.value});
-    }
-    
-    changeEmailIdHandler = (event) => {
-        this.setState({emailId: event.target.value});
-    }
-
-    render() {
-        
-        return (
-            <div>
-                <div className='container'>
-                    <div className='row'>
-                        <div className='card col-md-6 offset-md-3 offset-md-3'>
-                            <h3 className='text-center'>Add Employee</h3>
-                            <div className='card-body'>
-                                <form>
-                                    <div className='form-control'>
-                                        <label htmlFor='firstName' className="form-label">First Name</label>
-                                        <input placeholder='First Name' className="form-control" name='firstName' value={this.state.firstName} onChange={this.changeFirstNameHandler} />
-
-                                        <label htmlFor='lastName' className="form-label">Last Name</label>
-                                        <input placeholder="Last Name" className="form-control" name="lastName" value={this.state.lastName} onChange={this.changeLastNameHandler} />
-
-                                        <label htmlFor='emailId' className="form-label">Email address</label>
-                                        <input id="emailHelp" placeholder="Email ID" type="email" className="form-control" name="emailId" value={this.state.emailId} onChange={this.changeEmailIdHandler} aria-describedby="emailHelp" />
-                                        <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
-
-                                        <button className="btn btn-success" onClick={this.saveEmployee}>Submit</button>
-                                        <Link className='btn btn-danger' to="/employees">Cancel</Link>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    <>
+      <Modal show={props.IsModalOpened}>
+        <Modal.Header>
+          <Modal.Title>Create Employee</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="firstName">
+              <Form.Label>First Name</Form.Label>
+              {/* <Form.Control type="text" value={firstName} onChange={changeFirstNameHandler} autoFocus /> */}
+              <Form.Control type="text" ref={firstNameRef} autoFocus />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="lastName">
+              <Form.Label>Last Name</Form.Label>
+              {/* <Form.Control type="text" value={lastName} onChange={changeLastNameHandler} /> */}
+              <Form.Control type="text" ref={lastNameRef} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="email">
+              <Form.Label>Email address</Form.Label>
+              {/* <Form.Control type="email" value={emailId} onChange={changeEmailIdHandler} /> */}
+              <Form.Control ref={emailIdRef} />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="success" onClick={saveEmployee}>
+            Submit
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
 }
 
 export default CreateEmployeeComponent;

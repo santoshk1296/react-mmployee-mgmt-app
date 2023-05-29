@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from "react-router-dom";
+//import { useParams } from "react-router-dom";
 import EmployeeService from '../services/EmployeeService';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
+//import ListEmployeeComponent from './ListEmployeeComponent';
 
-const  UpdateEmployeeComponent = () => {
+const  UpdateEmployeeComponent = (props) => {
 
-    //const [employee, setemployeeData] = useState([]);
     const [firstName, setFistName] = useState("");
     const [lastName, setlastname] = useState("");
     const [emailId, setEmailId] = useState("");
+    let id = '';
+    id = props.empId;
 
-    const { id } = useParams();
-    
+    console.log('Inside UpdateEmployeeComponent empdid: '+props.empId);
+
+    const handleClose = () => {
+        
+        props.onCloseModal();
+
+    }
+
     const fetchData = () => { 
- 
+        
         console.log('id => ' + id);
 
         EmployeeService.getEmployeeById(id).then(res => {
@@ -54,7 +65,8 @@ const  UpdateEmployeeComponent = () => {
                 setFistName("");
                 setlastname("");
                 setEmailId("");
-                window.location = "/employees";
+                //window.location = "/employees";
+                props.onBindDataFromChield(event, id, employee);
             }    
         })
         .catch(error => {
@@ -87,33 +99,38 @@ const  UpdateEmployeeComponent = () => {
 
 
     return (
-        <div>
-            <div className='container'>
-                <div className='row'>
-                    <div className='card col-md-6 offset-md-3 offset-md-3'>
-                        <h3 className='text-center'>Update Employee</h3>
-                        <div className='card-body'>
-                            <form>
-                                <div className='form-control'>
-                                    <label htmlFor='firstName' className="form-label">First Name</label>
-                                    <input placeholder='First Name' className="form-control" name='firstName' value={firstName} onChange={changeFirstNameHandler}/>
-
-                                    <label htmlFor='lastName' className="form-label">Last Name</label>
-                                    <input placeholder="Last Name" className="form-control" name="lastName" value={lastName} onChange={changeLastNameHandler}/>
-
-                                    <label htmlFor='emailId' className="form-label">Email address</label>
-                                    <input id="emailHelp" placeholder="Email ID" type="email" className="form-control" name="emailId" value={emailId} aria-describedby="emailHelp" onChange={changeEmailIdHandler}/>
-                                    <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
-
-                                    <button className="btn btn-success" onClick={updateEmployee}>Update</button>
-                                    <Link className='btn btn-danger' to="/employees">Cancel</Link>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+       
+        <>
+        <Modal show={props.IsModalOpened} onHide={handleClose}>
+          <Modal.Header>
+            <Modal.Title>Update Employee</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+            <Form.Group className="mb-3" controlId="firstName">
+          <Form.Label>First Name</Form.Label>
+          <Form.Control type="text" value={firstName} onChange={changeFirstNameHandler} autoFocus/>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="lastName">
+          <Form.Label>Last Name</Form.Label>
+          <Form.Control type="text" value={lastName} onChange={changeLastNameHandler}/>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="email">
+                <Form.Label>Email address</Form.Label>
+                <Form.Control type="email" value={emailId} onChange={changeEmailIdHandler}/>
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="danger" onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant="success" onClick={updateEmployee}>
+              Update
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </>
     );
 }
 
